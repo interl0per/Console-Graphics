@@ -1,9 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.IO;
 using ConsoleExtender;
 using System.Drawing;
@@ -18,7 +15,7 @@ namespace ConsoleGraphics
         //    public bool FRAMERATE_ON = true;
         public const short RENDER_WIDTH = 300;
         public const short RENDER_HEIGHT = 100;
-        public const short MAX_FPS = 2000;
+        public const short MAX_FPS = 1000;
         public const float pi = (float)3.1415926535;
         static char[, ,] numerals = new char[9, 8, 10];
 
@@ -49,14 +46,10 @@ namespace ConsoleGraphics
                     }
                 }
             }
-            Thread t = new Thread(getInput);
-            t.Start();
-        }
-
-        static byte[,] loadTex(string loc)
-        {
-            byte[,] loadedTexture = new byte[2, 2];
-            return (loadedTexture);
+            Thread cin = new Thread(getInput);
+            cin.Start();
+            Thread soundPlayer = new Thread(playSound);
+            soundPlayer.Start();
         }
 
         static Mesh loadObj(string loc)
@@ -103,7 +96,7 @@ namespace ConsoleGraphics
             init(RENDER_WIDTH, RENDER_HEIGHT, "render");
             FrameBuffer buffer = new FrameBuffer();
             Rasterizer rast = new Rasterizer();
-            someShape.translate(new Mesh.point3(-200, 10, -0));
+            someShape.translate(new Mesh.point3(0, 10, 0));
             //someShape.rotate((float)0.25);
 
             buffer.drawFrame(rast.renderSolid(someShape));
@@ -117,8 +110,8 @@ namespace ConsoleGraphics
                 else
                     buffer.drawFrame(rast.renderWire(someShape));
 
-                someShape.translate(new Mesh.point3(0, 0, -(float)Math.Sin(i)/50));
-                  someShape.rotate((float)0.0005);
+                someShape.translate(new Mesh.point3(0, -(float)Math.Sin(i)/50, 0));
+                someShape.rotate((float)0.01);
             }
             Console.ReadLine();
         }
@@ -126,7 +119,6 @@ namespace ConsoleGraphics
         static void getInput()
         {
             ConsoleKeyInfo cki;
-            // Console.TreatControlCAsInput = true;
             do
             {
                 cki = Console.ReadKey();
@@ -134,23 +126,30 @@ namespace ConsoleGraphics
             } while (cki.Key != ConsoleKey.Escape);
         }
 
-        //static byte[] rasterize(byte[] highResImage)
-        //{
-        //    byte[] lowResImage = new byte[RENDER_WIDTH * RENDER_HEIGHT / 4];
-
-        //    for (int i = 0; i < RENDER_HEIGHT / 2; i++)
-        //    {
-        //        for (int j = 0; j < RENDER_WIDTH / 2; j++)
-        //        {
-        //            //test each subpixle
-        //            int yOff = 2 * i * RENDER_WIDTH;
-        //            byte sqSum = (byte)(highResImage[j * 2 + yOff] + 2 * highResImage[(2 * j) + 1 + yOff] + 4 * highResImage[(2 * j) + RENDER_WIDTH + yOff] + 8 * highResImage[(j * 2) + RENDER_WIDTH + 1 + yOff]);
-        //            //byte sn = 
-        //            lowResImage[j + i * RENDER_WIDTH / 2] = sqSum;
-        //        }
-        //    }
-        //    return (lowResImage);
-        //}
+        static void playSound()
+        {
+            while (true)
+            {
+                Console.Beep(446, 500);
+                Console.Beep(440, 500);
+                Console.Beep(440, 500);
+                Console.Beep(349, 350);
+                Console.Beep(523, 150);
+                Console.Beep(440, 500);
+                Console.Beep(349, 350);
+                Console.Beep(523, 150);
+                Console.Beep(440, 1000);
+                Console.Beep(659, 500);
+                Console.Beep(659, 500);
+                Console.Beep(659, 500);
+                Console.Beep(698, 350);
+                Console.Beep(523, 150);
+                Console.Beep(415, 500);
+                Console.Beep(349, 350);
+                Console.Beep(523, 150);
+                Console.Beep(440, 1000);
+            }
+        }
 
         public static void printch(char[] charId, int x, int y)
         {
