@@ -1,11 +1,9 @@
-﻿/* Rasterization - all the grunt work!
+/* Rasterization - all the grunt work!
  * Determine pixle 'colors'..
  * 
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
@@ -13,6 +11,7 @@ namespace ConsoleGraphics
 {
     class Rasterizer : Program
     {
+        public static int[,] zBuffer = new int[RENDER_WIDTH, RENDER_HEIGHT];
 
         public byte[,] renderWire(Mesh someShape)
         {
@@ -32,7 +31,6 @@ namespace ConsoleGraphics
                     int P_y1 = (int)(((RENDER_HEIGHT - 15) / 2) + someShape.verts[f.vertIDs[i] - 1].y / -depth);
 
                     if (P_y1 < RENDER_HEIGHT - 1 && P_y1 >= 0 && P_x1 < RENDER_WIDTH - 1 && P_x1 >= 0)//the vert is in bounds with the screen
-                    {
                         for (int j = 0; j < 2; j++)//each of the 2 neighboring verts
                         {
                             double depth2 = someShape.verts[f.vertIDs[j] - 1].z;
@@ -42,7 +40,6 @@ namespace ConsoleGraphics
                             if (P_y < RENDER_HEIGHT - 1 && P_y >= 0 && P_x < RENDER_WIDTH - 1 && P_x >= 0)
                                 image = drawLine(image, P_x, P_y, P_x1, P_y1, true);
                         }
-                    }
                 }
             }
             z = Environment.TickCount - z;
@@ -56,7 +53,11 @@ namespace ConsoleGraphics
 
             for (int x = 0; x < RENDER_WIDTH; x++)
                 for (int y = 0; y < RENDER_HEIGHT; y++)
+                {
                     image[x, y] = 32;
+                    zBuffer[x, y] = int.MinValue;
+                }
+
 
             foreach (Mesh.triangle f in someShape.faces)
             {
@@ -76,7 +77,7 @@ namespace ConsoleGraphics
                 int x2 = (int)((RENDER_WIDTH / 2) + someShape.verts[f.vertIDs[2] - 1].x / -depth3);
                 int y2 = (int)(((RENDER_HEIGHT - 15) / 2) + someShape.verts[f.vertIDs[2] - 1].y / -depth3);
 
-                if ((y0 < RENDER_HEIGHT && y0 >= 0 && x0 < RENDER_WIDTH && x0 > 0) || (y1 < RENDER_HEIGHT && y1 >= 0 && x1 < RENDER_WIDTH && x1 >= 0) || (y2 < RENDER_HEIGHT && y2 >= 0 && x2 < RENDER_WIDTH && x2 >= 0))
+                if (true)//((y0 < RENDER_HEIGHT && y0 >= 0 && x0 < RENDER_WIDTH && x0 > 0) || (y1 < RENDER_HEIGHT && y1 >= 0 && x1 < RENDER_WIDTH && x1 >= 0) || (y2 < RENDER_HEIGHT && y2 >= 0 && x2 < RENDER_WIDTH && x2 >= 0))
                 {   //>= one vertex is in screen
                     //byte col = (byte)(Matrix.dot(Matrix.cross(someShape.verts[f.vertIDs[0] - 1], someShape.verts[f.vertIDs[1] - 1]), new Mesh.point3(-200, 10, 3)));
                     image = drawTriangle(image, new Mesh.point3((float)x0, (float)y0, (float)depth1), new Mesh.point3((float)x1, (float)y1, (float)depth2), new Mesh.point3((float)x2, (float)y2, (float)depth3));
@@ -88,7 +89,12 @@ namespace ConsoleGraphics
 
         private byte[,] drawTriangle(byte[,] image, Mesh.point3 p1, Mesh.point3 p2, Mesh.point3 p3, byte color = 0)
         {
-            //want to apply a texture with p1, p2, p3 as verts.
+            /*
+             *      A
+             *  B------- 
+             *          C
+             * 
+             */
 
             //sort by lowest y value (highest on screen)
             Mesh.point3 a = p1;
@@ -181,13 +187,6 @@ namespace ConsoleGraphics
             byte txl = 219;
             float denom = ((b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y));
 
-            /*
-             *      A
-             *  B   .   
-             *          C
-             * 
-             */
-
             if (run == 0)
             {
                 if (drawWireFrame)
@@ -200,17 +199,24 @@ namespace ConsoleGraphics
                 }
                 for (; y0 < y1; y0++)//DRAW
                 {
-                    float b1 = (((b.y - c.y) * (x0 - c.x)) + ((c.x - b.x) * (y0 - c.y))) / denom;
-                    float b2 = (((c.y - a.y) * (x0 - c.x)) + ((a.x - c.x) * (y0 - c.y))) / denom;
-                    float b3 = 1 - b1 - b2;
+                    if (drawWireFrame)
+                    {
+                        image[x0, y0] = txl;
+                    }
+                    else
+                    {
+                        float b1 = (((b.y - c.y) * (x0 - c.x)) + ((c.x - b.x) * (y0 - c.y))) / denom;
+                        float b2 = (((c.y - a.y) * (x0 - c.x)) + ((a.x - c.x) * (y0 - c.y))) / denom;
+                        float b3 = 1 - b1 - b2;
 
-                    float u = b1;
-                    float v = b2;
-                    int xpos = Math.Min(Math.Max((int)(u * 128), 0), 127);
-                    int ypos = Math.Min(Math.Max((int)(v * 128), 0), 127);
+                        float u = b1;
+                        float v = b2;
+                        int xpos = Math.Min(Math.Max((int)(u * 128), 0), 127);
+                        int ypos = Math.Min(Math.Max((int)(v * 128), 0), 127);
 
-                    byte fa = ASCIIRender.bitmapColorsCached[xpos, ypos];
-                    image[x0, y0] = (byte)Convert.ToInt32(ASCIIRender.levels[fa]);
+                        byte fa = ASCIIRender.bitmapColorsCached[xpos, ypos];
+                        image[x0, y0] = (byte)Convert.ToInt32(ASCIIRender.levels[fa]);
+                    }
                 }
                 return (image);
             }
@@ -246,67 +252,79 @@ namespace ConsoleGraphics
                 {
                     if (x0 > 0)
                     {
-                        float b1 = (((b.y - c.y) * (x0 - c.x)) + ((c.x - b.x) * (y - c.y))) / denom;
-                        float b2 = (((c.y - a.y) * (x0 - c.x)) + ((a.x - c.x) * (y - c.y))) / denom;
-                        float b3 = 1 - b1 - b2;
+                        if (drawWireFrame)
+                        {
+                            image[x0, (int)y] = txl;
+                        }
+                        else
+                        {
+                            float b1 = (((b.y - c.y) * (x0 - c.x)) + ((c.x - b.x) * (y - c.y))) / denom;
+                            float b2 = (((c.y - a.y) * (x0 - c.x)) + ((a.x - c.x) * (y - c.y))) / denom;
+                            float b3 = 1 - b1 - b2;
 
-                        float u = b1;
-                        float v = b2;
-                        int xpos = Math.Min(Math.Max((int)(u * 128), 0), 127);
-                        int ypos = Math.Min(Math.Max((int)(v * 128), 0), 127);
+                            float u = b1;
+                            float v = b2;
+                            int xpos = Math.Min(Math.Max((int)(u * 128), 0), 127);
+                            int ypos = Math.Min(Math.Max((int)(v * 128), 0), 127);
 
-                        byte fa = ASCIIRender.bitmapColorsCached[xpos, ypos];
-                        image[x0, (int)y] = (byte)Convert.ToInt32(ASCIIRender.levels[fa]);
+                            byte fa = ASCIIRender.bitmapColorsCached[xpos, ypos];
+                            int interpolatedZ = (int)(a.z * b1 + b.z * b2 + c.z * b3);
+                            if (interpolatedZ > zBuffer[x0, (int)y])
+                            {
+                                image[x0, (int)y] = (byte)Convert.ToInt32(ASCIIRender.levels[fa]);
+                                zBuffer[x0, (int)y] = interpolatedZ;
+                            }
+                        }
                     }
                     y += m;
                 }
             }
-            //else
-            //{
-            //    if (drawWireFrame)
-            //    {
-            //        if (run / rise > 0.5)
-            //        {
-            //            txl = 92;// /
-            //        }
-            //        else if (run / rise < -0.5)
-            //        {
-            //            txl = 47;// \
-            //        }
-            //        else
-            //        {
-            //            txl = 124;// -
-            //        }
-            //    }
+            else
+            {
+                if (drawWireFrame)
+                {
+                    if (run / rise > 0.5)
+                    {
+                        txl = 92;// /
+                    }
+                    else if (run / rise < -0.5)
+                    {
+                        txl = 47;// \
+                    }
+                    else
+                    {
+                        txl = 124;// -
+                    }
+                }
 
-            //    if (y0 > y1)
-            //    {
-            //        int tx0 = x0;
-            //        x0 = x1;
-            //        x1 = tx0;
-            //        int ty0 = y0;
-            //        y0 = y1;
-            //        y1 = ty0;
-            //    }
-            //    float x = x0;
-            //    float invSlope = 1 / m;
-            //    for (; y0 < y1; y0++)//DRAW
-            //    {
-            //        //float b1 = (((b.y - c.y) * (x - c.x)) + ((c.x - b.x) * (y0 - c.y))) / denom;
-            //        //float b2 = (((c.y - a.y) * (x - c.x)) + ((a.x - c.x) * (y0 - c.y))) / denom;
-            //        //float b3 = 1 - b1 - b2;
+                if (y0 > y1)
+                {
+                    int tx0 = x0;
+                    x0 = x1;
+                    x1 = tx0;
+                    int ty0 = y0;
+                    y0 = y1;
+                    y1 = ty0;
+                }
+                float x = x0;
+                float invSlope = 1 / m;
+                for (; y0 < y1; y0++)//DRAW
+                {
+                    //float b1 = (((b.y - c.y) * (x - c.x)) + ((c.x - b.x) * (y0 - c.y))) / denom;
+                    //float b2 = (((c.y - a.y) * (x - c.x)) + ((a.x - c.x) * (y0 - c.y))) / denom;
+                    //float b3 = 1 - b1 - b2;
 
-            //        //float u = b1;
-            //        //float v = b2;
-            //        //int xpos = Math.Min(Math.Max((int)(u * 128), 0), 127);
-            //        //int ypos = Math.Min(Math.Max((int)(v * 128), 0), 127);
+                    //float u = b1;
+                    //float v = b2;
+                    //int xpos = Math.Min(Math.Max((int)(u * 128), 0), 127);
+                    //int ypos = Math.Min(Math.Max((int)(v * 128), 0), 127);
 
-            //        //byte fa = ASCIIRender.bitmapColorsCached[xpos, ypos];
-            //        //image[(int)x, y0] = (byte)Convert.ToInt32(ASCIIRender.levels[fa]);
+                    //byte fa = ASCIIRender.bitmapColorsCached[xpos, ypos];
+                    image[(int)x, y0] = txl;
 
-            //        //x += invSlope;
-            //    }
-            //}
+                    x += invSlope;
+                }
+            }
             return (image);
         }
     }
