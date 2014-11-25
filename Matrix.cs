@@ -1,4 +1,4 @@
-﻿/*
+/*
  *                                                  N x N matricies
  *      Define & perform basic operations on matricies.
  * 
@@ -31,7 +31,11 @@ namespace ConsoleGraphics
         {
             return((float)Math.Sqrt(dot(a,a)));
         }
-
+        public static Mesh.point3 normalize(Mesh.point3 a)
+        {
+            float norm = (float)Math.Sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+            return (new Mesh.point3(a.x/norm, a.y/norm, a.z/norm));
+        }
         public static Mesh.point3 cross(Mesh.point3 a, Mesh.point3 b)
         {
             Mesh.point3 resultant;
@@ -56,7 +60,7 @@ namespace ConsoleGraphics
             Mesh.point3 pNew;
             pNew.x = vector.x * m_i[0, 0] + vector.y * m_i[0, 1] + vector.z * m_i[0, 2];
             pNew.y = vector.x * m_i[1, 0] + vector.y * m_i[1, 1] + vector.z * m_i[1, 2];
-            pNew.z = vector.z;//vector.x * matrix.mi[2, 0] + vector.y * matrix.mi[2, 1] + vector.z * matrix.mi[2, 2];
+            pNew.z = vector.x * m_i[2, 0] + vector.y * m_i[2, 1] + vector.z * m_i[2, 2];
             return (pNew);
         }
     }
