@@ -1,4 +1,4 @@
-﻿/* Mesh - all the things that define a mesh. triangles, edges, verticies... later UVs...
+/* Mesh - all the things that define a mesh. triangles, edges, verticies... later UVs...
  * 
  * 
  */ 
@@ -12,24 +12,28 @@ namespace ConsoleGraphics
 {
     class Mesh : Program
     {
-        public Mesh(point3[] meshVerts, triangle[] meshFaces= null, point3[] meshUvs = null)
+        public Mesh(point3[] meshVerts, triangle[] meshFaces, point2[] meshUvs = null)
         {
             verts = meshVerts;
             vertCount = verts.Length;
             faces = meshFaces;
             faceCount = faces.Length;
-            uvVerts = meshUvs;//1-1 correspondance with verticies
+            uvVerts = meshUvs;
         }
 
         public struct triangle
-        {//collection of 4 (or 3?) points, defines a face
+        {
             public int[] vertIDs;
+           // public int[] uvIds;
             public triangle(int v1, int v2, int v3)
             {
-                vertIDs = new int[4];
+                vertIDs = new int[3];
                 vertIDs[0] = v1;
                 vertIDs[1] = v2;
                 vertIDs[2] = v3;
+                //uvIds = new int[2];
+                //uvIds[0] = uv1;
+                //uvIds[1] = uv2;
             }
         };
 
@@ -44,10 +48,19 @@ namespace ConsoleGraphics
             }
         };
 
+        public struct point2
+        {
+            public float x, y;
+            public point2(float newX, float newY)
+            {
+                x = newX;
+                y = newY;
+            }
+        };
+
         public point3[] verts;
         public triangle[] faces;
-        public point3[] uvVerts;
-
+        public point2[] uvVerts;
         public int vertCount;
         public int faceCount;
 
@@ -68,7 +81,7 @@ namespace ConsoleGraphics
             Matrix rotMtrx = new Matrix(new float[,] {{cosAngle,-sinAngle,0},
                                                      {sinAngle,  cosAngle,0}, 
                                                      {0,         0,       1}}, 3, 3);
-            /*
+            /*          Rotate about Z axis
              *                                       {{cosAngle,-sinAngle,0},
                                                      {sinAngle,  cosAngle,0}, 
                                                      {0,         0,       1}},3,3);
