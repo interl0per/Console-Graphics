@@ -15,20 +15,21 @@ namespace ConsoleGraphics
 
         public static void bt()
         {
-            image1 = (Bitmap)Image.FromFile(@"Lenna.bmp", true);//load character set (digits 1->9..)
-            int index = 0;
-            const int WIDTH = 1;
-            const int HEIGHT = 1;
-            bitmapColorsCached = new byte[image1.Width, image1.Height];
-            levels = new char[256];
-
             StreamReader r = new StreamReader("levels.txt");
-            while (!r.EndOfStream && index < 255)
+            levels = new char[256];
+            int index = 0;
+            while (!r.EndOfStream && index < 256)
             {
                 string e1 = r.ReadLine();
                 levels[index] = Char.Parse(e1);
                 index++;
             }
+            image1 = (Bitmap)Image.FromFile(@"Lenna.bmp", true);//load character set (digits 1->9..)
+            const int WIDTH = 1;
+            const int HEIGHT = 1;
+            bitmapColorsCached = new byte[image1.Width, image1.Height];
+
+            char[,] shaded = new char[40, 50];
 
             for (int i = 0; i < image1.Width; i += WIDTH)
             {
@@ -44,9 +45,9 @@ namespace ConsoleGraphics
                         }
                     }
                     sum /= WIDTH * HEIGHT * 3;
-                    Console.Write(levels[sum]);
+                   // Console.Write(levels[sum]);
                 }
-                Console.WriteLine();
+               // Console.WriteLine();
             }
             for (int i = 0; i < image1.Width; i++)
                 for (int j = 0; j < image1.Height; j++)
