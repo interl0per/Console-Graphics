@@ -16,6 +16,6 @@ Features:
 
 -Texture mapping. Right now it can map a corner of a .BMP to triangles. Simple nearest neighbor interpolation. I just have to get the UV coordinate mapping working properly, and multiple materials.
 
--Lighting: "works" like crap right now. Eventually I will use gouraud shading.
+-Lighting: Simple flat shading. Eventually I'll use gouraud shading.
 
--user input runs on another thread, works fine.
+-user input runs on another thread. WASD translate meshes, E rotates them.
