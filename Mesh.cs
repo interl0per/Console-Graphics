@@ -1,7 +1,7 @@
 /* Mesh - all the things that define a mesh. triangles, edges, verticies... later UVs...
  * 
  * 
- */ 
+ */
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace ConsoleGraphics
         public struct triangle
         {
             public int[] vertIDs;
-           // public int[] uvIds;
+            // public int[] uvIds;
             public triangle(int v1, int v2, int v3)
             {
                 vertIDs = new int[3];
