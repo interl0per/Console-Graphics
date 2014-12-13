@@ -14,40 +14,71 @@ namespace ConsoleGraphics
         //special characters:█ ▄ ▀ ■
 
         public bool VSYNC_ON = false;
-        public static bool renderWireFr = true;
+        public static threeState ts = new threeState(0);
         //    public bool FRAMERATE_ON = true;
         public const short RENDER_WIDTH = 300;
         public const short RENDER_HEIGHT = 100;
         public const short MAX_FPS = 1000;
         public const float pi = (float)3.1415926535;
-        static char[, ,] numerals = new char[9, 8, 10];
+        public static char[] levels;
+
+        public struct threeState
+        {
+            public byte x;
+            public threeState(byte initialState)
+            {
+                x = 0;
+            }
+            public void changeState()
+            {
+                x = (byte)((x + 1) % 3);
+            }
+        }
+
+        public struct light
+        {
+            public Mesh.point3 coords;
+            public float intensity;
+            public light(float x, float y, float z, float setIntensity)
+            {
+                coords = new Mesh.point3(x, y, z);
+                intensity = setIntensity;
+            }
+        };
 
         static void init(short width, short height, string title)
         {
             Console.Title = title;
             Console.CursorVisible = false;
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.SetWindowSize(width, height + 15);
-            Console.SetBufferSize(width, height + 15);
+        reTry:
+            try
+            {
+                Console.SetWindowSize(width, height + 15);
+                Console.SetBufferSize(width, height + 15);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.WriteLine("Decrease your font size and press enter");
+                Console.ReadLine();
+                goto reTry;
+            }
             Console.Clear();//clear colors from user preset.
             Console.SetCursorPosition(0, height);
             Console.Write(new String('▄', RENDER_WIDTH));
             Console.ForegroundColor = ConsoleColor.Cyan;
 
-            Bitmap image1 = (Bitmap)Image.FromFile(@"charset.bmp", true);//load character set (digits 1->9..)
-            for (int i = 0; i < 9; i++)
+            StreamReader r = new StreamReader("levels.txt");
+
+            levels = new char[256];
+            int index = 0;
+            while (!r.EndOfStream && index < 256)
             {
-                for (int j = 0; j < 8; j++)
-                {
-                    for (int k = 0; k < 10; k++)
-                    {
-                        if (image1.GetPixel(j + 9 * i, k).B == 0)
-                        {
-                            numerals[i, j, k] = 'x';
-                        }
-                    }
-                }
+                string e1 = r.ReadLine();
+                levels[index] = Char.Parse(e1);
+                index++;
             }
+
             Thread cin = new Thread(getInput);
             cin.Start();
             //Thread soundPlayer = new Thread(playSound);
@@ -107,15 +138,18 @@ namespace ConsoleGraphics
             return (new Mesh(loadedVerts.ToArray(), loadedFaces.ToArray(), loadedUvs.ToArray()));
         }
 
-        static Mesh someShape = loadObj("box");
+        static Mesh someShape = loadObj("mario");
+        public Material someMat = new Material("lenna");
+        public static light light1 = new light(0, 0, 0, 1000);
 
         public static void Main(string[] args)
         {
-            ASCIIRender.bt();
+            //BrightnessInit.go();
+            //BrightnessInit.sortstuff();
             init(RENDER_WIDTH, RENDER_HEIGHT, "render");
             FrameBuffer buffer = new FrameBuffer();
             Rasterizer rast = new Rasterizer();
-            someShape.translate(new Mesh.point3(0, -300, -8));
+            someShape.translate(new Mesh.point3(-800, -300, -8));
             //someShape.rotate((float)0.25);
 
             buffer.drawFrame(rast.renderSolid(someShape));
@@ -124,10 +158,16 @@ namespace ConsoleGraphics
             for (double i = 0; i < 1000; i += 0.01)
             {
                 //  buffer.drawFrame(drawLine(new byte[RENDER_HEIGHT * RENDER_WIDTH], a1, a2));
-                if (renderWireFr)
+                if (ts.x==0)
                     buffer.drawFrame(rast.renderSolid(someShape));
-                else
+                else if(ts.x == 2)
                     buffer.drawFrame(rast.renderWire(someShape));
+                else if (ts.x==1)
+                    buffer.drawFrame(rast.renderVerts(someShape));
+                    
+                //light1.coords.x = 1000*(float)Math.Sin(i);
+                light1.coords.y = 1000 * (float)Math.Sin(i);
+                //light1.coords.z = 100 * (float)Math.Sin(i);
 
                 // someShape.rotate((float)0.001);
             }
@@ -142,7 +182,7 @@ namespace ConsoleGraphics
             {
                 cki = Console.ReadKey();
                 if (cki.Key == ConsoleKey.Spacebar)
-                    renderWireFr = !renderWireFr;
+                    ts.changeState();
                 else if (cki.Key == ConsoleKey.W)
                     someShape.translate(new Mesh.point3(0, 0, 1));
                 else if (cki.Key == ConsoleKey.A)
