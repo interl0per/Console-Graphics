@@ -20,6 +20,7 @@ namespace ConsoleGraphics
         public const short RENDER_HEIGHT = 100;
         public const short MAX_FPS = 1000;
         public const float pi = (float)3.1415926535;
+        static char[, ,] numerals = new char[9, 8, 10];
         public static char[] levels;
 
         public struct threeState
@@ -119,7 +120,7 @@ namespace ConsoleGraphics
                         vertCount++;
                         string temp = e1.Substring(3, e1.Length - 3);
                         string[] coords = temp.Split(' ');
-                        Mesh.point3 p = new Mesh.point3(float.Parse(coords[0]) * 100, float.Parse(coords[1]) * 100, float.Parse(coords[2]) / 2);
+                        Mesh.point3 p = new Mesh.point3(float.Parse(coords[0])*100, float.Parse(coords[1])*100, float.Parse(coords[2]));
                         //if z is positive it's off screen, z=0 we clip
                         loadedVerts.Add(p);
                     }
@@ -128,19 +129,19 @@ namespace ConsoleGraphics
                         faceCount++;
                         string temp = e1.Substring(2, e1.Length - 2);
                         string[] coords = temp.Split(' ', '/');
-                        Mesh.triangle f = new Mesh.triangle(int.Parse(coords[0]), int.Parse(coords[2]), int.Parse(coords[4]));
-                        Mesh.triangle uvf = new Mesh.triangle(int.Parse(coords[1]), int.Parse(coords[3]), int.Parse(coords[5]));
+                        Mesh.triangle f = new Mesh.triangle(int.Parse(coords[0])-1, int.Parse(coords[2])-1, int.Parse(coords[4])-1, /*UV ID's*/ int.Parse(coords[1])-1, int.Parse(coords[3])-1, int.Parse(coords[5])-1);
+                       // Mesh.triangle uvf = new Mesh.triangle(int.Parse(coords[1]), int.Parse(coords[3]), int.Parse(coords[5]));
                         loadedFaces.Add(f);
-                        loadedUvFaces.Add(uvf);
+                       // loadedUvFaces.Add(uvf);
                     }
                 }
             }
             return (new Mesh(loadedVerts.ToArray(), loadedFaces.ToArray(), loadedUvs.ToArray()));
         }
 
-        static Mesh someShape = loadObj("mario");
+        static Mesh someShape = loadObj("teapot");
         public Material someMat = new Material("lenna");
-        public static light light1 = new light(0, 0, 0, 1000);
+        public static light light1 = new light(0, 0, 0,800);
 
         public static void Main(string[] args)
         {
@@ -149,7 +150,7 @@ namespace ConsoleGraphics
             init(RENDER_WIDTH, RENDER_HEIGHT, "render");
             FrameBuffer buffer = new FrameBuffer();
             Rasterizer rast = new Rasterizer();
-            someShape.translate(new Mesh.point3(-800, -300, -8));
+            //someShape.translate(new Mesh.point3(-800, -300, -8));
             //someShape.rotate((float)0.25);
 
             buffer.drawFrame(rast.renderSolid(someShape));
@@ -165,8 +166,8 @@ namespace ConsoleGraphics
                 else if (ts.x==1)
                     buffer.drawFrame(rast.renderVerts(someShape));
                     
-                //light1.coords.x = 1000*(float)Math.Sin(i);
-                light1.coords.y = 1000 * (float)Math.Sin(i);
+                light1.coords.x = 1000*(float)Math.Sin(i);
+                //light1.coords.y = 1000 * (float)Math.Sin(i);
                 //light1.coords.z = 100 * (float)Math.Sin(i);
 
                 // someShape.rotate((float)0.001);
@@ -192,7 +193,7 @@ namespace ConsoleGraphics
                 else if (cki.Key == ConsoleKey.D)
                     someShape.translate(new Mesh.point3(10, 0, 0));
                 else if (cki.Key == ConsoleKey.R)
-                    someShape.rotate(0.06);
+                    someShape.rotate(0.05);
                 else if (cki.Key == ConsoleKey.Q)
                     someShape.translate(new Mesh.point3(0, -10, 0));
                 else if (cki.Key == ConsoleKey.E)
