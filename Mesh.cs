@@ -24,16 +24,17 @@ namespace ConsoleGraphics
         public struct triangle
         {
             public int[] vertIDs;
-            // public int[] uvIds;
-            public triangle(int v1, int v2, int v3)
+            public int[] uvIds;
+            public triangle(int v1, int v2, int v3, int vt1, int vt2, int vt3)
             {
                 vertIDs = new int[3];
                 vertIDs[0] = v1;
                 vertIDs[1] = v2;
                 vertIDs[2] = v3;
-                //uvIds = new int[2];
-                //uvIds[0] = uv1;
-                //uvIds[1] = uv2;
+                uvIds = new int[3];
+                uvIds[0] = vt1;
+                uvIds[1] = vt2;
+                uvIds[2] = vt3;
             }
         };
 
@@ -72,21 +73,42 @@ namespace ConsoleGraphics
             }
         }
 
-        public void rotate(double angle)
+        public void rotate(double angle, byte dir)
         {
             //Rotate about centerpoint of the shape: translate the center of our shape to the origin, rotate, translate back.
             float cosAngle = (float)Math.Cos(angle);
             float sinAngle = (float)Math.Sin(angle);
+            Matrix rotMtrx = null;
 
-            Matrix rotMtrx = new Matrix(new float[,] {{cosAngle,-sinAngle,0},
-                                                     {sinAngle,  cosAngle,0}, 
-                                                     {0,         0,       1}}, 3, 3);
-            /*          Rotate about Z axis
+            #region rotations
+            /*        Rotate about X Axis            {{1,0,0},
+                                                     {0,  cosAngle,sinAngle*100}, 
+                                                     {0,  -sinAngle/100, cosAngle}}, 3, 3);
+             
+             
+             *        Rotate about Y Axis            {{cosAngle,0,-sinAngle*100},
+                                                     {0,  1, 0}, 
+                                                     {sinAngle,  0, cosAngle}}, 3, 3);
+                      Rotate about Z axis
              *                                       {{cosAngle,-sinAngle,0},
                                                      {sinAngle,  cosAngle,0}, 
                                                      {0,         0,       1}},3,3);
-             * 
-             * */
+             */
+            #endregion
+
+            if (dir == 0)
+                rotMtrx = new Matrix(new float[,] {{1,0,0},
+                                                     {0,  cosAngle,sinAngle*100}, 
+                                                     {0,  -sinAngle/100, cosAngle}}, 3, 3);
+            else if (dir == 1)
+                rotMtrx = new Matrix(new float[,] {{cosAngle,0,-sinAngle*100},
+                                                     {0,  1, 0}, 
+                                                     {sinAngle/100,  0, cosAngle}}, 3, 3);
+            else
+                rotMtrx = new Matrix(new float[,] {{cosAngle,-sinAngle,0},
+                                                     {sinAngle,  cosAngle,0}, 
+                                                     {0,         0,       1}}, 3, 3);
+
             for (int i = 0; i < vertCount; i++)
             {
                 verts[i] = rotMtrx.multiply(verts[i]);
