@@ -146,9 +146,9 @@ namespace ConsoleGraphics
                     int y2 = (int)(((RENDER_HEIGHT - 15) / 2) + someShape.verts[f.vertIDs[2]].y / depth[2]);
 
 
-                    Mesh.point2[] uvs = new Mesh.point2[] { someShape.uvVerts[f.vertIDs[0]],
-                                                            someShape.uvVerts[f.vertIDs[1]], 
-                                                            someShape.uvVerts[f.vertIDs[2]] 
+                    Mesh.point2[] uvs = new Mesh.point2[] { someShape.uvVerts[f.uvIds[0]],
+                                                            someShape.uvVerts[f.uvIds[1]], 
+                                                            someShape.uvVerts[f.uvIds[2]] 
                                                           };
                     Mesh.point3[] projPoints = new Mesh.point3[] {new Mesh.point3(x0, y0, depth[0]),
                                                                   new Mesh.point3(x1, y1, depth[1]),
@@ -203,10 +203,6 @@ namespace ConsoleGraphics
             else
             {//nontrivial
                 Mesh.point3 midpoint = new Mesh.point3((int)(Math.Ceiling(points[0].x + ((float)(points[1].y - points[0].y) / (float)(points[2].y - points[0].y)) * (points[2].x - points[0].x))), points[1].y);
-                //Mesh.point2 uvm = new Mesh.point2((uvs[0].x + ((float)(points[1].y - points[0].y) / (float)(points[2].y - points[0].y)) * (uvs[2].x - uvs[0].x)), (uvs[0].y + ((float)(points[1].y - points[0].y) / (float)(points[2].y - points[0].y)) * (uvs[2].y - uvs[0].y)));
-                //Mesh.point2[] adjuvs1 = new Mesh.point2[] { uvs[0], uvs[1], uvm };
-                //Mesh.point2[] adjuvs2 = new Mesh.point2[] { uvs[1], uvm, uvs[2] };
-
                 fillFlatBottom(image, new Mesh.point3[] { points[0], points[1], midpoint }, unsortedPoints, brightness, uvs);
                 fillFlatTop(image, new Mesh.point3[] { points[1], midpoint, points[2] }, unsortedPoints, brightness, uvs);
             }
@@ -324,12 +320,11 @@ namespace ConsoleGraphics
                             { // use barycentric interpolation to do everything..
                                 float interpU = (float)(b1 * uvs[0].x + b2 * uvs[1].x + b3 * uvs[2].x);
                                 float interpV = (float)(b1 * uvs[0].y + b2 * uvs[1].y + b3 * uvs[2].y);
-                                float interpBright = (b1 * (float)color[0] + b2 * (float)color[1] + b3 * (float)color[2]);
-                                double interpBright2 = (b1 * (double)color[0] + b2 * (double)color[1] + b3 * (double)color[2]);
-                                int xpos = Math.Min(Math.Max((int)(interpU * 128), 0), 127);
-                                int ypos = Math.Min(Math.Max((int)(interpV * 128), 0), 127);
+                                float interpBright = color[1];// + b2 * (float)color[1] + b3 * (float)color[2]);
+                                int xpos = Math.Min(Math.Max((int)(interpU * someMat.SIZE), 0), someMat.SIZE-1);
+                                int ypos = Math.Min(Math.Max((int)(interpV * someMat.SIZE), 0), someMat.SIZE-1);
 
-                                byte fa = someMat.bitmapColorsCached[(int)clamp(xpos, 0, 127), (int)clamp(ypos, 0, 127)];
+                                byte fa = someMat.bitmapColorsCached[(int)clamp(xpos, 0, someMat.SIZE-1), (int)clamp(ypos, 0, someMat.SIZE-1)];
                                 image[xtoi, ytoi] = (byte)(Convert.ToInt32(levels[(int)clamp(fa + interpBright, 0, 255)]));
                                 zBuffer[xtoi, ytoi] = interpolatedZ;
                             }
@@ -355,6 +350,7 @@ namespace ConsoleGraphics
 
                 float x = x0;
                 float invSlope = 1 / m;
+
                 while (y0 < y1)
                 {
                     image[(int)x, y0] = txl;
