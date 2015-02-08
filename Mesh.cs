@@ -85,7 +85,7 @@ namespace ConsoleGraphics
             point3 startCoords = verts[0];
             translate(new Mesh.point3(-startCoords.x, -startCoords.y, -startCoords.z));
             #region rotations
-            /*        Rotate about X Axis            {{1,0,0},
+            /*        Rotate about X Axis            {{1,0, 0},
                                                      {0,  cosAngle,sinAngle*100}, 
                                                      {0,  -sinAngle/100, cosAngle}}, 3, 3);
              
