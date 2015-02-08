@@ -87,8 +87,8 @@ namespace ConsoleGraphics
             }
             return (image);
         }
-
-        public byte[,] renderSolid(Mesh someShape)
+        Mesh.triangle targFace;
+        public byte[,] renderSolid()
         {
             byte[,] image = new byte[RENDER_WIDTH, RENDER_HEIGHT];//
 
@@ -101,6 +101,7 @@ namespace ConsoleGraphics
 
             foreach (Mesh.triangle f in someShape.faces)
             {
+                targFace = f;
                 Mesh.point3 a = Matrix.add(someShape.verts[f.vertIDs[0]], new Mesh.point3(-someShape.verts[f.vertIDs[2]].x, -someShape.verts[f.vertIDs[2]].y, -someShape.verts[f.vertIDs[2]].z));
                 Mesh.point3 b = Matrix.add(someShape.verts[f.vertIDs[0]], new Mesh.point3(-someShape.verts[f.vertIDs[1]].x, -someShape.verts[f.vertIDs[1]].y, -someShape.verts[f.vertIDs[1]].z));
                 Mesh.point3 surfaceNorm1 = Matrix.cross(a, b);
@@ -134,7 +135,7 @@ namespace ConsoleGraphics
                                  someShape.verts[f.vertIDs[1]].z,
                                  someShape.verts[f.vertIDs[2]].z};
 
-                if (depth[0] < 0 && depth[1] < 0 && depth[2] < 0)//((y0 < RENDER_HEIGHT && y0 >= 0 && x0 < RENDER_WIDTH && x0 > 0) || (y1 < RENDER_HEIGHT && y1 >= 0 && x1 < RENDER_WIDTH && x1 >= 0) || (y2 < RENDER_HEIGHT && y2 >= 0 && x2 < RENDER_WIDTH && x2 >= 0))
+                if (depth[0] < 0 && depth[1] < 0 && depth[2] < 0)
                 {                    //>= one vertex is in screen
                     int x0 = (int)((RENDER_WIDTH / 2) + someShape.verts[f.vertIDs[0]].x / depth[0]);
                     int y0 = (int)(((RENDER_HEIGHT - 15) / 2) + someShape.verts[f.vertIDs[0]].y / depth[0]);
@@ -321,6 +322,7 @@ namespace ConsoleGraphics
                                 float interpU = (float)(b1 * uvs[0].x + b2 * uvs[1].x + b3 * uvs[2].x);
                                 float interpV = (float)(b1 * uvs[0].y + b2 * uvs[1].y + b3 * uvs[2].y);
                                 float interpBright = color[1];// + b2 * (float)color[1] + b3 * (float)color[2]);
+                                Material someMat = someShape.matIDs[targFace.matID-1];
                                 int xpos = Math.Min(Math.Max((int)(interpU * someMat.SIZE), 0), someMat.SIZE-1);
                                 int ypos = Math.Min(Math.Max((int)(interpV * someMat.SIZE), 0), someMat.SIZE-1);
 
