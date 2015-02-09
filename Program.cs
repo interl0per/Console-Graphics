@@ -144,7 +144,7 @@ namespace ConsoleGraphics
             return (new Mesh(loadedVerts.ToArray(), loadedFaces.ToArray(), loadedUvs.ToArray(), mtls.ToArray()));
         }
 
-        public static Mesh someShape = loadObj("box");
+        public static Mesh someShape = loadObj("link");
         public static light light1 = new light(0, 0, 0, 700);
 
         public static void Main(string[] args)
