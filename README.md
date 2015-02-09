@@ -15,10 +15,14 @@ Features:
 
 -Load meshes from .obj files. Sample .obj is included.
 
--Mesh transformations - translations, rotations, scaling. Work on rotations around x/y axis.
+-Mesh transformations - rotations around x/y/z axis done.
 
 -Texture mapping. I used barycentric interpolation to do this. Multiple materials/mesh.
 
 -Lighting: Simple flat shading.
 
 -user input runs on another thread. WASD translate meshes, R,T,Y rotates them.
+
+Bugs:
+-Problems with using multiple materials per mesh
+-zBuffer isn't quite right
