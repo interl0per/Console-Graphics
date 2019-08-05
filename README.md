@@ -2,7 +2,7 @@
                                           a.k.a Hello World
                                           =================
 
-**If you are having trouble building this, you can just download a build at                                           <https://www.dropbox.com/s/3y7zip9sef2k01d/cgbuild.zip?dl=0>**
+**If you are having trouble building this, you can just download a build at                                           <https://www.dropbox.com/sh/pjt2f0hs50iag4j/AAAvBZhCsbmRVUQFwSr5NA9ua?dl=0>**
 
 A full blown 3D graphics engine that runs in the windows command prompt. 
 3D objects are rendered in real-time as monochromatic ASCII art.
