@@ -42,16 +42,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FrameBuffer.cs" />
-    <Compile Include="Material.cs" />
-    <Compile Include="Matrix.cs" />
-    <Compile Include="Mesh.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Rasterize.cs" />
+    <Compile Include="Maths\MathHelper.cs" />
+    <Compile Include="Maths\Triangle.cs" />
+    <Compile Include="Render\FrameBuffer.cs" />
+    <Compile Include="Render\Light.cs" />
+    <Compile Include="Render\Material.cs" />
+    <Compile Include="Maths\Vector2.cs" />
+    <Compile Include="Maths\Vector3.cs" />
+    <Compile Include="Maths\Matrix.cs" />
+    <Compile Include="Render\Mesh.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="Render\Rasterize.cs" />
+    <Compile Include="Utils\ThreeState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="link.obj">
+    <None Include="Resources\Meshes\link.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="README.md">
@@ -62,12 +68,12 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="levels.txt">
+    <None Include="Resources\levels.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="YoungLink.bmp">
+    <None Include="Resources\Textures\YoungLink.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
